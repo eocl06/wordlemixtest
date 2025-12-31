@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wordle Mix</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=DynaPuff:wght@400;600;700&family=Fuzzy+Bubbles:wght@400;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-purple: #807ae8;
+            --wordle-green: #6AAA64;
+            --wordle-red: #e74c3c;
+            --bg-gradient: linear-gradient(180deg, #FFFFFF 30%, #F5F9FF 100%);
+            --space-unit: 8px;
+        }
+
+        /* Temel Ayarlar */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            margin: 0; padding: 0;
+        }
+
+        html, body { 
+            height: 100%; 
+            background: #F5F9FF; 
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient); 
+            background-attachment: fixed; 
+            display: flex; 
+            justify-content: center; 
+        }
+
+        .main-wrapper {
+            width: 100%; 
+            max-width: 414px; 
+            min-height: 100vh;
+            padding: calc(var(--space-unit) * 3) 24px calc(var(--space-unit) * 6) 24px; /* Alt padding artırıldı */
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+        }
+
+        /* Header */
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: calc(var(--space-unit) * 4); 
+        }
+
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-family: 'DynaPuff', cursive; 
+            font-weight: 700; 
+            font-size: 1.3rem; 
+            color: #1a1a1a;
+        }
+
+        .share-btn { 
+            font-family: 'Inter', sans-serif; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            background: none; 
+            border: none; 
+            color: #000; 
+            padding: 8px;
+        }
+
+        /* Başlıklar */
+        h1 { 
+            font-family: 'Fuzzy Bubbles', cursive;
+            font-size: clamp(24px, 7.8vw, 32px); 
+            font-weight: 700; 
+            line-height: 1.15; 
+            margin-bottom: 25px; 
+            color: #000; 
+        }
+
+        .highlight { color: var(--primary-purple); }
+        .highlight-green { color: var(--wordle-green); }
+
+        /* Paragraflar */
+        .content-text { 
+            font-family: 'Inter', sans-serif;
+            font-size: 16px; 
+            line-height: 1.6; 
+            margin-bottom: 20px; 
+            color: #2c3e50; 
+            font-weight: 500;
+        }
+
+        .form-start-spacer { margin-top: 20px; }
+        
+        .input-group { 
+            margin-bottom: 24px; 
+            text-align: center; 
+        }
+
+        input.main-input {
+            width: 100%; 
+            padding: 16px 22px; 
+            border-radius: 16px;
+            border: 2px solid #000;
+            background: #fff; 
+            font-family: 'Inter', sans-serif; 
+            font-size: 16px; 
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input.main-input:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 4px 12px rgba(128, 122, 232, 0.15);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake { 
+            animation: shake 0.3s ease-in-out; 
+            border-color: var(--wordle-red) !important; 
+        }
+
+        .helper-text { 
+            font-family: 'Caveat', cursive; 
+            font-size: 17px; 
+            color: #576574; 
+            margin-top: 10px; 
+            display: block; 
+            font-weight: 700;
+        }
+
+        /* Wordle Kutucukları */
+        .word-section { margin-top: 24px; }
+        
+        .word-label { 
+            font-family: 'Inter', sans-serif;
+            font-weight: 800; 
+            font-size: 1.1rem; 
+            margin-bottom: 20px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            color: #1a1a1a;
+        }
+
+        .boxes { 
+            display: flex; 
+            gap: 2.5%; 
+            justify-content: space-between; 
+            margin-bottom: 40px; /* Bölümler arası boşluk artırıldı */
+            width: 100%; 
+        }
+
+        .box-wrapper { 
+            position: relative; 
+            width: 18%; 
+            padding-top: 18%;
+        }
+
+        .letter-box {
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            border: 2px solid #000; 
+            border-radius: 12px; 
+            background: #fff;
+            font-family: 'Fuzzy Bubbles', cursive; 
+            font-size: clamp(20px, 6vw, 28px);
+            font-weight: 700; 
+            text-align: center; 
+            outline: none; 
+            text-transform: uppercase;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #1a1a1a;
+        }
+
+        /* Flip Animasyonu */
+        @keyframes wordleFlip {
+            0% { transform: rotateX(0); }
+            45% { transform: rotateX(90deg); background: #fff; }
+            55% { transform: rotateX(90deg); background: var(--wordle-green); border-color: var(--wordle-green); color: #fff; }
+            100% { transform: rotateX(0); background: var(--wordle-green); border-color: var(--wordle-green); color: #fff; }
+        }
+        .flip-animate { animation: wordleFlip 0.6s ease forwards; }
+
+        /* Butonlar */
+        .spacer { flex-grow: 1; min-height: 40px; }
+        
+        .submit-btn {
+            background-color: var(--wordle-green); 
+            color: white; 
+            border: 2px solid #000; 
+            width: 100%;
+            padding: 18px; 
+            border-radius: 50px; 
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+            margin-top: 10px; /* Butonun üstündeki boşluk */
+            margin-bottom: 10px; /* En alta yapışmaması için margin */
+            transition: all 0.1s;
+        }
+
+        .submit-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+
+        /* Hata Toast */
+        .toast {
+            position: fixed; 
+            bottom: -80px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: #2d3436; 
+            color: #fff; 
+            padding: 14px 28px; 
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+            z-index: 2000;
+            transition: bottom 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+            white-space: nowrap;
+        }
+        .toast.show { bottom: 40px; }
+
+        /* Success Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); 
+            display: none; 
+            justify-content: center;
+            align-items: center; 
+            z-index: 1000; 
+            backdrop-filter: blur(6px);
+        }
+        .modal-content {
+            background: #fff; 
+            width: 85%; 
+            max-width: 340px; 
+            padding: 40px 24px;
+            border-radius: 28px; 
+            text-align: center; 
+            border: 3px solid #000;
+        }
+        .modal-title { 
+            font-family: 'Inter', sans-serif; 
+            font-weight: 900;
+            font-size: 2rem; 
+            color: var(--wordle-green); 
+            margin-bottom: 15px; 
+        }
+
+        .readonly-mode { 
+            pointer-events: none; 
+            opacity: 0.9; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast">Hata Mesajı</div>
+
+    <div class="main-wrapper" id="pageContent">
+        <header>
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='10' height='10' fill='%236AAA64'/%3E%3Crect x='11' y='11' width='10' height='10' fill='%23787C7E'/%3E%3C/svg%3E" alt="logo">
+                WORDLE Mix
+            </div>
+            <button class="share-btn" id="shareBtn">PAYLAŞ ➔</button>
+        </header>
+
+        <h1>Yeni bir Wordle,<br>hem de kelimesi <span class="highlight">senden!</span></h1>
+        
+        <div class="content-text">Bugüne kadar sayısız kez o 5 kutucuğa baktın ve doğru kelimeyi bulmaya çalıştın.</div>
+        <div class="content-text">Yeni Wordle Mix'te artık heyecanı sen yaratıyorsun: <span class="highlight-green">Hem çözen hem soran sensin.</span></div>
+        <div class="content-text">Aklındaki 5 harfli kelimeyi gönder, sırası geldiğinde herkes <span class="highlight">senin kelimeni</span> oynasın!</div>
+
+        <div class="form-start-spacer"></div>
+
+        <!-- Benim Kelimem Bölümü -->
+        <div class="word-section">
+            <div class="word-label">BENİM KELİMEM:</div>
+            <div class="boxes">
+                <div class="box-wrapper"><input type="text" class="letter-box" maxlength="1" inputmode="text" autocomplete="off"></div>
+                <div class="box-wrapper"><input type="text" class="letter-box" maxlength="1" inputmode="text" autocomplete="off"></div>
+                <div class="box-wrapper"><input type="text" class="letter-box" maxlength="1" inputmode="text" autocomplete="off"></div>
+                <div class="box-wrapper"><input type="text" class="letter-box" maxlength="1" inputmode="text" autocomplete="off"></div>
+                <div class="box-wrapper"><input type="text" class="letter-box" maxlength="1" inputmode="text" autocomplete="off"></div>
+            </div>
+        </div>
+
+        <!-- Kullanıcı Bilgileri -->
+        <div class="input-group">
+            <input type="text" id="fullName" class="main-input" placeholder="Ad Soyad" autocomplete="off" spellcheck="false">
+            <span class="helper-text">Örnek: Günün Kelimesi <b>Can Sorgun</b> tarafından oluşturuldu</span>
+        </div>
+
+        <div class="input-group">
+            <input type="email" id="email" class="main-input" placeholder="E-mail" autocomplete="off" spellcheck="false">
+            <span class="helper-text">*kelimen yayınlandığında sana haber verebilmemiz için</span>
+        </div>
+
+        <div class="spacer"></div>
+        <button class="submit-btn" id="submitBtn">GÖNDER</button>
+    </div>
+
+    <!-- Başarı Modalı -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <div class="modal-title">HARİKA!</div>
+            <p style="font-family:'Inter'; font-weight:600; color:#2c3e50; margin-bottom:25px; line-height:1.5;">Kelimeni önerdin. Zamanı geldiğinde sana haber vereceğiz!</p>
+            <button class="submit-btn" style="font-size:1.1rem; padding:14px; width:100%;" onclick="closeAndLock()">TAMAM</button>
+        </div>
+    </div>
+
+    <script>
+        const boxes = document.querySelectorAll('.letter-box');
+        const modal = document.getElementById('modal');
+        const submitBtn = document.getElementById('submitBtn');
+        const toast = document.getElementById('toast');
+        const nameInput = document.getElementById('fullName');
+        const emailInput = document.getElementById('email');
+
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2800);
+        }
+
+        document.getElementById('shareBtn').addEventListener('click', async () => {
+            const shareData = {
+                title: 'Wordle Mix',
+                text: 'Kendi Wordle kelimeni oluşturup önermek ister misin?',
+                url: window.location.href
+            };
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    showToast("Bağlantı kopyalandı! 📋");
+                }
+            } catch (err) {}
+        });
+
+        boxes.forEach((box, index) => {
+            box.addEventListener('input', (e) => {
+                const val = e.target.value.toLocaleUpperCase('tr-TR').replace(/[^a-zA-ZÇĞİÖŞÜçğiöşü]/g, "");
+                box.value = val;
+                box.classList.remove('shake');
+                
+                if (val && index < boxes.length - 1) {
+                    boxes[index + 1].focus();
+                }
+            });
+
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && index > 0) {
+                    boxes[index - 1].focus();
+                }
+            });
+        });
+
+        submitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const word = Array.from(boxes).map(b => b.value).join('');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            let isValid = true;
+
+            [nameInput, emailInput, ...boxes].forEach(el => el.classList.remove('shake'));
+
+            if (word.length < 5) {
+                boxes.forEach(b => { if(!b.value) b.classList.add('shake'); });
+                showToast("5 harfli kelimeyi tamamlamalısın! 🧩");
+                isValid = false;
+            } else if (nameInput.value.trim().length < 2) {
+                nameInput.classList.add('shake');
+                showToast("Ad Soyad alanını doldurmalısın! ✍️");
+                isValid = false;
+            } else if (!emailRegex.test(emailInput.value)) {
+                emailInput.classList.add('shake');
+                showToast("Geçerli bir e-mail girmelisin! 📧");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            document.activeElement.blur();
+            submitBtn.disabled = true;
+
+            boxes.forEach((box, i) => {
+                setTimeout(() => box.classList.add('flip-animate'), i * 150);
+            });
+
+            setTimeout(() => {
+                modal.style.display = 'flex';
+            }, 1200);
+        });
+
+        function closeAndLock() {
+            modal.style.display = 'none';
+            document.getElementById('pageContent').classList.add('readonly-mode');
+            submitBtn.innerText = "GÖNDERİLDİ ✅";
+            submitBtn.style.background = "#bdc3c7";
+            submitBtn.style.boxShadow = "none";
+            document.querySelectorAll('input').forEach(inp => {
+                inp.readOnly = true;
+                inp.style.background = "#f1f2f6";
+            });
+        }
+    </script>
+</body>
+</html>
